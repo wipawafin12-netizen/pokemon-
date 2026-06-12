@@ -12,6 +12,7 @@ import { getBoss } from "@/game/data/bosses";
 import type { AnimationType } from "@/game/data/types";
 import { AudioManager } from "@/game/systems/AudioManager";
 import { CreatureSprite } from "@/components/common/CreatureSprite";
+import { OrbIcon } from "@/components/common/OrbIcon";
 import { Button, HpBar, Panel, StatusBadge, TypeBadge } from "@/components/common/ui";
 import { xpForLevel } from "@/game/systems/leveling";
 
@@ -244,11 +245,11 @@ export function BattleScreen() {
             )}
             {orbAnim && (
               <motion.div
-                className="absolute inset-x-0 -bottom-2 flex justify-center text-4xl"
+                className="absolute inset-x-0 -bottom-2 flex justify-center"
                 animate={{ rotate: [...Array.from({ length: orbAnim.shakes * 2 + 1 }, (_, i): number => (i % 2 ? 25 : -25)), 0] }}
                 transition={{ duration: orbAnim.shakes * 0.85, ease: "easeInOut" }}
               >
-                🔮
+                <OrbIcon size={52} />
               </motion.div>
             )}
             {/* floating numbers */}

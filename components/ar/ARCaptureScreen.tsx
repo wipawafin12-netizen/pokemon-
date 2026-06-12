@@ -20,6 +20,7 @@ import { getItem } from "@/game/data/items";
 import { AR_MAX_THROWS, resolveArThrow } from "@/game/systems/arCapture";
 import { AudioManager } from "@/game/systems/AudioManager";
 import { CreatureSprite } from "@/components/common/CreatureSprite";
+import { OrbIcon } from "@/components/common/OrbIcon";
 import { Button, HpBar, RarityBadge, TypeBadge } from "@/components/common/ui";
 
 type Phase = "intro" | "aiming" | "flying" | "shaking" | "captured" | "fled";
@@ -352,9 +353,9 @@ export function ARCaptureScreen() {
             }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.6, ease: "easeOut" }}
-            className="absolute z-30 -translate-x-1/2 -translate-y-1/2 text-5xl"
+            className="absolute z-30 -translate-x-1/2 -translate-y-1/2"
           >
-            🔮
+            <OrbIcon size={56} />
           </motion.div>
         )}
       </AnimatePresence>
@@ -362,11 +363,11 @@ export function ARCaptureScreen() {
       {/* shaking orb at the monster's spot */}
       {phase === "shaking" && (
         <motion.div
-          className="absolute top-[34%] left-1/2 z-30 -translate-x-1/2 -translate-y-1/2 text-6xl"
+          className="absolute top-[34%] left-1/2 z-30 -translate-x-1/2 -translate-y-1/2"
           animate={{ rotate: [...Array.from({ length: shakes * 2 }, (_, i): number => (i % 2 ? 22 : -22)), 0] }}
           transition={{ duration: shakes * 0.7, ease: "easeInOut" }}
         >
-          🔮
+          <OrbIcon size={72} />
         </motion.div>
       )}
 
@@ -388,15 +389,15 @@ export function ARCaptureScreen() {
           <div
             onPointerDown={onOrbDown}
             onPointerUp={onOrbUp}
-            className={`mt-1 flex h-24 w-24 items-center justify-center rounded-full border-2 text-6xl transition ${
+            className={`mt-1 flex h-24 w-24 items-center justify-center rounded-full border-2 transition ${
               phase === "aiming" && currentOrb
                 ? "cursor-grab border-amber-300/80 bg-slate-950/60 active:scale-95"
                 : "border-slate-700/60 bg-slate-950/40 opacity-40"
             }`}
           >
-            <motion.span animate={phase === "aiming" ? { y: [0, -5, 0] } : {}} transition={{ duration: 1.4, repeat: Infinity }}>
-              🔮
-            </motion.span>
+            <motion.div animate={phase === "aiming" ? { y: [0, -5, 0] } : {}} transition={{ duration: 1.4, repeat: Infinity }}>
+              <OrbIcon size={76} />
+            </motion.div>
           </div>
           <div className="text-[10px] uppercase tracking-widest text-slate-400">swipe up to throw</div>
         </div>
