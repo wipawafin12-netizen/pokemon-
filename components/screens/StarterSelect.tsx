@@ -26,13 +26,15 @@ export function StarterSelect() {
   };
 
   return (
-    <div className="flex h-dvh w-full flex-col items-center justify-center bg-gradient-to-b from-indigo-950 to-slate-950 p-4">
+    // overflow-y-auto + bottom action bar: on phones the three cards stack
+    // taller than the viewport and the confirm button must stay reachable
+    <div className="h-dvh w-full overflow-y-auto bg-gradient-to-b from-indigo-950 to-slate-950 p-4 pb-28 sm:flex sm:flex-col sm:items-center sm:justify-center">
       <motion.h2 initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-2 text-center text-3xl font-black text-amber-300">
         Choose Your Partner
       </motion.h2>
-      <p className="mb-8 text-center text-sm text-slate-400">Elder Rowan smiles: &ldquo;Each of them has been waiting for someone. Perhaps for you.&rdquo;</p>
+      <p className="mb-6 text-center text-sm text-slate-400">Elder Rowan smiles: &ldquo;Each of them has been waiting for someone. Perhaps for you.&rdquo;</p>
 
-      <div className="grid w-full max-w-3xl grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="mx-auto grid w-full max-w-3xl grid-cols-1 gap-4 sm:grid-cols-3">
         {STARTERS.map((id, i) => {
           const species = getSpecies(id);
           const selected = picked === id;
@@ -65,7 +67,8 @@ export function StarterSelect() {
         })}
       </div>
 
-      <div className="mt-8 flex gap-3">
+      {/* action bar pinned to the bottom — always reachable on small screens */}
+      <div className="fixed inset-x-0 bottom-0 z-10 flex justify-center gap-3 border-t border-slate-800/60 bg-slate-950/90 p-4 backdrop-blur">
         <Button variant="ghost" onClick={() => setScreen("save-select")}>← Back</Button>
         <Button variant="gold" disabled={!picked} onClick={confirm} className="px-8">
           {picked ? `Choose ${getSpecies(picked).name}!` : "Pick a partner"}

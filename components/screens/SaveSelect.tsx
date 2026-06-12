@@ -36,7 +36,7 @@ export function SaveSelect() {
   };
 
   return (
-    <div className="flex h-dvh w-full flex-col items-center justify-center bg-gradient-to-b from-slate-900 to-slate-950 p-4">
+    <div className="flex h-dvh w-full flex-col items-center justify-center overflow-y-auto bg-gradient-to-b from-slate-900 to-slate-950 p-4">
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-xl">
         <h2 className="mb-6 text-center text-3xl font-black text-amber-300">Choose a Save</h2>
         <div className="space-y-3">
