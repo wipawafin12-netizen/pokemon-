@@ -46,6 +46,7 @@ export function ARCaptureScreen() {
   const [orbFlight, setOrbFlight] = useState<OrbFlight | null>(null);
   const [shakes, setShakes] = useState(0);
   const [dodge, setDodge] = useState(0); // increments to trigger dodge wiggle
+  const [photoFlash, setPhotoFlash] = useState(false);
 
   // monster drift state (rAF-driven, rendered via transform)
   const monsterRef = useRef<HTMLDivElement>(null);
@@ -219,6 +220,80 @@ export function ARCaptureScreen() {
     if (phase === "aiming" && orbEntries.length === 0) setPhase("fled");
   }, [phase, orbEntries.length]);
 
+  // ---- AR photo: composite camera frame + monster into a shareable image ----
+  const takePhoto = async () => {
+    if (!species) return;
+    setPhotoFlash(true);
+    setTimeout(() => setPhotoFlash(false), 350);
+    AudioManager.playSfx("click");
+    try {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      const canvas = document.createElement("canvas");
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      const ctx = canvas.getContext("2d")!;
+      ctx.scale(dpr, dpr);
+
+      // background: live video frame (object-cover crop) or painted fallback
+      const v = videoRef.current;
+      if (camera === "live" && v && v.videoWidth > 0) {
+        const scale = Math.max(w / v.videoWidth, h / v.videoHeight);
+        const dw = v.videoWidth * scale;
+        const dh = v.videoHeight * scale;
+        ctx.drawImage(v, (w - dw) / 2, (h - dh) / 2, dw, dh);
+      } else {
+        const bg = new Image();
+        bg.src = "/assets/backgrounds/title-vista.png";
+        await new Promise((res) => { bg.onload = res; bg.onerror = res; });
+        if (bg.naturalWidth) {
+          const scale = Math.max(w / bg.naturalWidth, h / bg.naturalHeight);
+          const dw = bg.naturalWidth * scale;
+          const dh = bg.naturalHeight * scale;
+          ctx.drawImage(bg, (w - dw) / 2, (h - dh) / 2, dw, dh);
+        }
+      }
+
+      // the monster, exactly where it is on screen right now
+      const imgEl = monsterRef.current?.querySelector("img");
+      if (imgEl) {
+        const r = imgEl.getBoundingClientRect();
+        ctx.drawImage(imgEl, r.left, r.top, r.width, r.height);
+      }
+
+      // caption
+      ctx.font = "bold 16px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillStyle = "rgba(10,10,18,0.55)";
+      const caption = `${species.name} · Lv ${target?.level ?? "?"} — Eternal Monsters`;
+      const tw = ctx.measureText(caption).width + 28;
+      ctx.beginPath();
+      ctx.roundRect((w - tw) / 2, h - 64, tw, 32, 16);
+      ctx.fill();
+      ctx.fillStyle = "#fde68a";
+      ctx.fillText(caption, w / 2, h - 43);
+
+      const blob = await new Promise<Blob | null>((res) => canvas.toBlob(res, "image/jpeg", 0.92));
+      if (!blob) throw new Error("no blob");
+      const file = new File([blob], `eternal-monsters-${species.id}.jpg`, { type: "image/jpeg" });
+
+      // iOS/Android: native share sheet (save to Photos); desktop: download
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file], title: "Eternal Monsters" }).catch(() => {});
+      } else {
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = file.name;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+      }
+      toast("Photo saved! 📷", "success");
+    } catch {
+      toast("Couldn't take the photo", "warning");
+    }
+  };
+
   if (!target || !species || !save) return null;
 
   const hpPct = target.currentHp / target.stats.hp;
@@ -275,28 +350,52 @@ export function ARCaptureScreen() {
         )}
       </AnimatePresence>
 
-      {/* top panel: monster info */}
+      {/* top: centered name plate above the monster (AR-game style) + exit */}
       {phase !== "intro" && (
-        <div className="absolute inset-x-0 top-0 z-30 flex items-start justify-between p-3">
-          <div className="rounded-xl border border-slate-600/60 bg-slate-950/80 px-3 py-2 backdrop-blur">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-bold text-slate-100">{species.name}</span>
-              <span className="text-xs text-slate-400">Lv {target.level}</span>
-              <TypeBadge element={species.element} small />
-              <RarityBadge rarity={species.rarity} />
-            </div>
-            <div className="mt-1 w-44">
-              <HpBar current={target.currentHp} max={target.stats.hp} showText={false} />
-            </div>
-          </div>
+        <div className="absolute inset-x-0 top-0 z-30 p-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
           <button
             onClick={() => exit("The creature slipped away.")}
-            className="rounded-xl border border-slate-600/60 bg-slate-950/80 px-3 py-2 text-sm text-slate-200 backdrop-blur"
+            className="absolute top-[max(0.75rem,env(safe-area-inset-top))] right-3 rounded-full border border-slate-600/60 bg-slate-950/70 px-3 py-2 text-sm text-slate-200 backdrop-blur"
           >
             ✕
           </button>
+          <div className="mx-auto w-fit rounded-full border border-slate-600/40 bg-slate-950/70 px-5 py-2 text-center backdrop-blur">
+            <div className="flex items-center justify-center gap-2">
+              <span className="text-sm font-bold text-slate-50">{species.name}</span>
+              <span className="text-xs font-semibold text-amber-300">Lv {target.level}</span>
+              <TypeBadge element={species.element} small />
+              <RarityBadge rarity={species.rarity} />
+            </div>
+            <div className="mt-1.5 w-48">
+              <HpBar current={target.currentHp} max={target.stats.hp} showText={false} />
+            </div>
+          </div>
         </div>
       )}
+
+      {/* floating camera button — snap an AR photo */}
+      {(phase === "aiming" || phase === "flying") && (
+        <button
+          onClick={takePhoto}
+          title="Take photo"
+          className="absolute right-4 bottom-44 z-30 flex h-14 w-14 items-center justify-center rounded-full border-2 border-slate-300/60 bg-white/90 text-2xl shadow-xl backdrop-blur transition active:scale-90"
+        >
+          📷
+        </button>
+      )}
+
+      {/* photo flash */}
+      <AnimatePresence>
+        {photoFlash && (
+          <motion.div
+            initial={{ opacity: 0.9 }}
+            animate={{ opacity: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.35 }}
+            className="pointer-events-none absolute inset-0 z-50 bg-white"
+          />
+        )}
+      </AnimatePresence>
 
       {/* target circle */}
       {(phase === "aiming" || phase === "flying") && (
@@ -373,12 +472,12 @@ export function ARCaptureScreen() {
 
       {/* bottom HUD: message, orb selector, throw pad */}
       {phase !== "intro" && phase !== "captured" && phase !== "fled" && (
-        <div className="absolute inset-x-0 bottom-0 z-30 flex flex-col items-center gap-2 p-4 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-30 flex flex-col items-center gap-2 p-4 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
           {message && <div className="rounded-full bg-slate-950/80 px-4 py-1 text-sm text-amber-200 backdrop-blur">{message}</div>}
           <div className="flex items-center gap-3">
             <button
               onClick={() => setOrbIndex((i) => (i + 1) % Math.max(1, orbEntries.length))}
-              className="rounded-xl border border-slate-600/60 bg-slate-950/80 px-3 py-2 text-xs font-semibold text-slate-200 backdrop-blur"
+              className="pointer-events-auto rounded-xl border border-slate-600/60 bg-slate-950/80 px-3 py-2 text-xs font-semibold text-slate-200 backdrop-blur"
             >
               {currentOrb ? `${getItem(currentOrb[0]).name} ×${currentOrb[1]} ⇄` : "No orbs!"}
             </button>
@@ -389,7 +488,7 @@ export function ARCaptureScreen() {
           <div
             onPointerDown={onOrbDown}
             onPointerUp={onOrbUp}
-            className={`mt-1 flex h-24 w-24 items-center justify-center rounded-full border-2 transition ${
+            className={`pointer-events-auto mt-1 flex h-24 w-24 items-center justify-center rounded-full border-2 transition ${
               phase === "aiming" && currentOrb
                 ? "cursor-grab border-amber-300/80 bg-slate-950/60 active:scale-95"
                 : "border-slate-700/60 bg-slate-950/40 opacity-40"

@@ -56,6 +56,14 @@ try {
   step(3, `Aiming phase — wild ${monsterName} spawned over the camera feed`);
   await page.screenshot({ path: "scripts/verify-out/ar-2-aiming.png" });
 
+  // AR photo button: composites camera + monster, then downloads (no Web Share in headless)
+  const [download] = await Promise.all([
+    page.waitForEvent("download", { timeout: 8000 }).catch(() => null),
+    page.click('button[title="Take photo"]'),
+  ]);
+  await page.waitForSelector("text=Photo saved!", { timeout: 5000 });
+  step(3.5, `AR photo captured${download ? ` (${download.suggestedFilename()})` : ""}`);
+
   // throw orbs until captured or fled (swipe up from the orb pad)
   let outcome = null;
   for (let i = 0; i < 8 && !outcome; i++) {
