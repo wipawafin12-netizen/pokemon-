@@ -372,7 +372,7 @@ export function ARCaptureScreen() {
 
       {/* bottom HUD: message, orb selector, throw pad */}
       {phase !== "intro" && phase !== "captured" && phase !== "fled" && (
-        <div className="absolute inset-x-0 bottom-0 z-30 flex flex-col items-center gap-2 p-4 pb-6">
+        <div className="absolute inset-x-0 bottom-0 z-30 flex flex-col items-center gap-2 p-4 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
           {message && <div className="rounded-full bg-slate-950/80 px-4 py-1 text-sm text-amber-200 backdrop-blur">{message}</div>}
           <div className="flex items-center gap-3">
             <button

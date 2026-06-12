@@ -24,6 +24,8 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   themeColor: "#0f172a",
+  // extend behind the iPhone home indicator; fixed bars pad with safe-area insets
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

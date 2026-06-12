@@ -68,7 +68,7 @@ export function StarterSelect() {
       </div>
 
       {/* action bar pinned to the bottom — always reachable on small screens */}
-      <div className="fixed inset-x-0 bottom-0 z-10 flex justify-center gap-3 border-t border-slate-800/60 bg-slate-950/90 p-4 backdrop-blur">
+      <div className="fixed inset-x-0 bottom-0 z-10 flex justify-center gap-3 border-t border-slate-800/60 bg-slate-950/90 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] backdrop-blur">
         <Button variant="ghost" onClick={() => setScreen("save-select")}>← Back</Button>
         <Button variant="gold" disabled={!picked} onClick={confirm} className="px-8">
           {picked ? `Choose ${getSpecies(picked).name}!` : "Pick a partner"}

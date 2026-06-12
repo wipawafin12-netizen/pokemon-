@@ -329,7 +329,7 @@ export function BattleScreen() {
       </div>
 
       {/* Log + Actions */}
-      <div className="z-10 border-t border-slate-800 bg-slate-950/95 p-3">
+      <div className="z-10 border-t border-slate-800 bg-slate-950/95 p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
         <div className="mx-auto max-w-3xl">
           <div className="mb-2 min-h-10 rounded-xl bg-slate-900 px-4 py-2 text-sm text-slate-200">
             {log || (canChoose ? "What will you do?" : "...")}

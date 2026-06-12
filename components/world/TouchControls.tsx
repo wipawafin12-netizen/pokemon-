@@ -38,7 +38,7 @@ export function TouchControls() {
   );
 
   return (
-    <div className="pointer-events-none absolute inset-x-0 bottom-0 z-30 flex items-end justify-between p-4 select-none">
+    <div className="pointer-events-none absolute inset-x-0 bottom-0 z-30 flex items-end justify-between p-4 pb-[max(1rem,env(safe-area-inset-bottom))] select-none">
       <div className="pointer-events-auto grid grid-cols-3 grid-rows-3 gap-1">
         <div />
         {dirBtn("up", "▲", "")}
