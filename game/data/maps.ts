@@ -1,0 +1,530 @@
+import type { GameMap } from "./types";
+
+// Tile legend:
+//   . ground   , decoration   # solid   ~ water   * tall grass (encounters)
+//   = path     B building     D door    - bridge  ^ ledge (solid)
+
+export const MAPS: GameMap[] = [
+  // ================= ORIGIN VILLAGE =================
+  {
+    id: "origin-village",
+    name: "Origin Village",
+    theme: "village",
+    musicKey: "village",
+    encounterRate: 0,
+    encounters: [],
+    grid: [
+      "##########################",
+      "#,,......=........,,,.,,.#",
+      "#..BBB...=...BBB.........#",
+      "#..BDB...=...BDB...~~~~..#",
+      "#....=...=....=....~~~~..#",
+      "#....=====....=..........#",
+      "#........=....=..........#",
+      "#..,,....=================",
+      "#........=...........,,..#",
+      "#..BBB...=...,,,.........#",
+      "#..BDB...=...............#",
+      "#....=...=......,,.......#",
+      "#....=====...............#",
+      "#,,......................#",
+      "#.....,,,.......,,....,,.#",
+      "##########################",
+    ],
+    portals: [
+      { x: 25, y: 7, toMap: "verdant-forest", toX: 1, toY: 6, label: "Verdant Forest" },
+      { x: 4, y: 3, toMap: "village-house", toX: 5, toY: 6, label: "Granny Sage's House" },
+      { x: 14, y: 3, toMap: "origin-village", toX: 14, toY: 4, requiresFlag: "__locked__", lockedMessage: "The door is locked. Someone hums inside." },
+      { x: 4, y: 10, toMap: "origin-village", toX: 4, toY: 11, requiresFlag: "__locked__", lockedMessage: "A sign reads: 'Gone taming. Back never.'" },
+    ],
+    npcs: [
+      { npcId: "elder-rowan", x: 12, y: 6 },
+      { npcId: "healer-mira", x: 6, y: 8 },
+      { npcId: "merchant-tobb", x: 16, y: 9 },
+      { npcId: "kid-pip", x: 20, y: 12 },
+      { npcId: "ranger-fenn", x: 22, y: 7 },
+    ],
+    trainers: [],
+    items: [
+      { x: 2, y: 13, itemId: "small-potion", qty: 2, flag: "item-ov-1" },
+      { x: 23, y: 14, itemId: "basic-orb", qty: 3, flag: "item-ov-2" },
+    ],
+  },
+
+  // ================= VILLAGE HOUSE (interior) =================
+  {
+    id: "village-house",
+    name: "Granny Sage's House",
+    theme: "village",
+    musicKey: "village",
+    encounterRate: 0,
+    encounters: [],
+    grid: [
+      "############",
+      "#,,......,,#",
+      "#..........#",
+      "#...,,.....#",
+      "#..........#",
+      "#..........#",
+      "#####D######",
+      "############",
+    ],
+    portals: [{ x: 5, y: 6, toMap: "origin-village", toX: 4, toY: 4, label: "Outside" }],
+    npcs: [{ npcId: "granny-sage", x: 8, y: 2 }],
+    trainers: [],
+    items: [],
+  },
+
+  // ================= VERDANT FOREST =================
+  {
+    id: "verdant-forest",
+    name: "Verdant Forest",
+    theme: "forest",
+    musicKey: "forest",
+    encounterRate: 0.14,
+    encounters: [
+      { speciesId: "mossling", weight: 25, minLevel: 3, maxLevel: 6 },
+      { speciesId: "chirpuff", weight: 22, minLevel: 3, maxLevel: 6 },
+      { speciesId: "glowbug", weight: 20, minLevel: 3, maxLevel: 6 },
+      { speciesId: "branchling", weight: 15, minLevel: 4, maxLevel: 7 },
+      { speciesId: "aquafawn", weight: 12, minLevel: 4, maxLevel: 7 },
+      { speciesId: "shadeling", weight: 6, minLevel: 5, maxLevel: 8 },
+    ],
+    grid: [
+      "##########################",
+      "###....***....##....######",
+      "##.....***.....#....,,..##",
+      "#..##..***..##....##....##",
+      "#..##.......##..****..####",
+      "#......##......*****....##",
+      "=........##....****......#",
+      "#..***...........##......#",
+      "#..***..##...##..........=",
+      "#..***..##...##....##....#",
+      "#.......~~~~.....###....##",
+      "#..##...~~~~.............#",
+      "#..##....--......***....##",
+      "#........--.....****...###",
+      "#,,.....~~~~....***....###",
+      "##########################",
+    ],
+    portals: [
+      { x: 0, y: 6, toMap: "origin-village", toX: 24, toY: 7, label: "Origin Village" },
+      { x: 25, y: 8, toMap: "crystal-caverns", toX: 1, toY: 8, label: "Crystal Caverns",
+        requiresFlag: "boss-verdant", lockedMessage: "A wall of living briars blocks the path. The Bramble Warden's challenge must be answered first." },
+    ],
+    npcs: [
+      { npcId: "botanist-ivy", x: 6, y: 7 },
+      { npcId: "hermit-bole", x: 21, y: 2 },
+      { npcId: "scout-lark", x: 16, y: 8 },
+      { npcId: "kid-nilla", x: 5, y: 11 },
+    ],
+    trainers: [
+      { trainerId: "tr-sprout-sam", x: 12, y: 5 },
+      { trainerId: "tr-bugcatcher-lila", x: 17, y: 11 },
+      { trainerId: "tr-ranger-cole", x: 7, y: 13 },
+      { trainerId: "tr-herbalist-fern", x: 21, y: 7 },
+    ],
+    items: [
+      { x: 1, y: 14, itemId: "lost-locket", qty: 1, flag: "item-vf-locket" },
+      { x: 22, y: 2, itemId: "herb-bundle", qty: 1, flag: "item-vf-herbs" },
+      { x: 6, y: 3, itemId: "small-potion", qty: 2, flag: "item-vf-1" },
+      { x: 13, y: 10, itemId: "basic-orb", qty: 3, flag: "item-vf-2" },
+    ],
+    bossId: "boss-verdant",
+    bossPos: { x: 20, y: 13 },
+  },
+
+  // ================= CRYSTAL CAVERNS =================
+  {
+    id: "crystal-caverns",
+    name: "Crystal Caverns",
+    theme: "cave",
+    musicKey: "cave",
+    encounterRate: 0.15,
+    encounters: [
+      { speciesId: "pebblit", weight: 28, minLevel: 10, maxLevel: 14 },
+      { speciesId: "gloombat", weight: 25, minLevel: 10, maxLevel: 15 },
+      { speciesId: "emberimp", weight: 20, minLevel: 11, maxLevel: 15 },
+      { speciesId: "marlune", weight: 12, minLevel: 13, maxLevel: 16 },
+      { speciesId: "crystalisk", weight: 8, minLevel: 14, maxLevel: 17 },
+      { speciesId: "shadeling", weight: 7, minLevel: 12, maxLevel: 15 },
+    ],
+    grid: [
+      "##########################",
+      "####,,.....##.....,,...###",
+      "##....***..##..***......##",
+      "#...#.***..##..***..#...##",
+      "#...#......##.......#....#",
+      "#...####...##...#####....#",
+      "#......#...,,...#........#",
+      "#..**..#........#...**...#",
+      "=..**.....####......**...=",
+      "#..**.....####......**...#",
+      "#......~~~....~~~........#",
+      "#...#..~~~....~~~...#....#",
+      "#...#..............#.....#",
+      "#...#####,,...,,####.....#",
+      "#,,......................#",
+      "##########################",
+    ],
+    portals: [
+      { x: 0, y: 8, toMap: "verdant-forest", toX: 24, toY: 8, label: "Verdant Forest" },
+      { x: 25, y: 8, toMap: "desert-frontier", toX: 1, toY: 8, label: "Desert Frontier",
+        requiresFlag: "boss-cavern", lockedMessage: "A wall of crystal seals the eastern tunnel. The Mountain's Heart still beats against you." },
+    ],
+    npcs: [
+      { npcId: "miner-dukk", x: 5, y: 6 },
+      { npcId: "geologist-fay", x: 18, y: 4 },
+      { npcId: "healer-ondine", x: 12, y: 12 },
+    ],
+    trainers: [
+      { trainerId: "tr-miner-brock", x: 8, y: 12 },
+      { trainerId: "tr-spelunker-echo", x: 17, y: 6 },
+      { trainerId: "tr-gemhunter-vera", x: 22, y: 12 },
+    ],
+    items: [
+      { x: 1, y: 14, itemId: "great-orb", qty: 2, flag: "item-cc-1" },
+      { x: 12, y: 6, itemId: "large-potion", qty: 1, flag: "item-cc-2" },
+      { x: 21, y: 1, itemId: "ember-stone", qty: 1, flag: "item-cc-3" },
+    ],
+    bossId: "boss-cavern",
+    bossPos: { x: 12, y: 14 },
+  },
+
+  // ================= DESERT FRONTIER =================
+  {
+    id: "desert-frontier",
+    name: "Desert Frontier",
+    theme: "desert",
+    musicKey: "desert",
+    encounterRate: 0.13,
+    encounters: [
+      { speciesId: "sandskip", weight: 30, minLevel: 17, maxLevel: 22 },
+      { speciesId: "cactiling", weight: 25, minLevel: 17, maxLevel: 22 },
+      { speciesId: "pyrelynx", weight: 18, minLevel: 19, maxLevel: 23 },
+      { speciesId: "scorchadillo", weight: 14, minLevel: 20, maxLevel: 24 },
+      { speciesId: "duneraptor", weight: 13, minLevel: 21, maxLevel: 24 },
+    ],
+    grid: [
+      "#############=############",
+      "#,,..........=......,,..##",
+      "#....***.....=...***....##",
+      "#....***.........***.....#",
+      "#..#......,,......#......#",
+      "#..#..****....~~.....**..#",
+      "#......***....~~.....**..#",
+      "#..,,..***...............#",
+      "=........................=",
+      "#....#####....,,...##....#",
+      "#....#...#.........##....#",
+      "#....#...#..***..........#",
+      "#..........***....,,.....#",
+      "#..,,......***...........#",
+      "#.....................,,.#",
+      "##########################",
+    ],
+    portals: [
+      { x: 0, y: 8, toMap: "crystal-caverns", toX: 24, toY: 8, label: "Crystal Caverns" },
+      { x: 13, y: 0, toMap: "frozen-ridge", toX: 13, toY: 14, label: "Frozen Ridge",
+        requiresFlag: "boss-desert", lockedMessage: "A howling sandwall bars the northern pass. Outrun the Endless Gale first." },
+      { x: 25, y: 8, toMap: "desert-frontier", toX: 24, toY: 8, requiresFlag: "__locked__", lockedMessage: "Endless dunes stretch east. Nothing survives that way." },
+    ],
+    npcs: [
+      { npcId: "caravan-zara", x: 6, y: 4 },
+      { npcId: "nomad-resh", x: 19, y: 12 },
+      { npcId: "healer-sol", x: 16, y: 9 },
+      { npcId: "kid-dustin", x: 4, y: 14 },
+    ],
+    trainers: [
+      { trainerId: "tr-duneracer-jax", x: 9, y: 3 },
+      { trainerId: "tr-mirage-nadia", x: 21, y: 6 },
+      { trainerId: "tr-sunblade-omar", x: 7, y: 10 },
+      { trainerId: "tr-oasis-keeper-rime", x: 17, y: 5 },
+    ],
+    items: [
+      { x: 1, y: 1, itemId: "ultra-orb", qty: 1, flag: "item-df-1" },
+      { x: 24, y: 14, itemId: "large-potion", qty: 2, flag: "item-df-2" },
+      { x: 12, y: 12, itemId: "panacea", qty: 1, flag: "item-df-3" },
+    ],
+    bossId: "boss-desert",
+    bossPos: { x: 22, y: 2 },
+  },
+
+  // ================= FROZEN RIDGE =================
+  {
+    id: "frozen-ridge",
+    name: "Frozen Ridge",
+    theme: "snow",
+    musicKey: "snow",
+    encounterRate: 0.14,
+    encounters: [
+      { speciesId: "snowpup", weight: 30, minLevel: 25, maxLevel: 30 },
+      { speciesId: "frostfox", weight: 28, minLevel: 25, maxLevel: 30 },
+      { speciesId: "shiverwing", weight: 16, minLevel: 27, maxLevel: 31 },
+      { speciesId: "avalanchor", weight: 12, minLevel: 28, maxLevel: 31 },
+      { speciesId: "gloombat", weight: 14, minLevel: 26, maxLevel: 30 },
+    ],
+    grid: [
+      "##########################",
+      "#,,...^^......,,....^^..##",
+      "#.....^^..***.......^^...#",
+      "#..***....***....***.....#",
+      "#..***........#..***.....#",
+      "#......#......#..........#",
+      "#..,,..#..~~..#....,,....#",
+      "#......#..~~..####.......#",
+      "#.........--.............=",
+      "#....##...--....##.......#",
+      "#....##...~~....##...,,..#",
+      "#..,,.....~~.............#",
+      "#......***....***....^^..#",
+      "#......***....***....^^..#",
+      "#,,..........=...........#",
+      "#############=############",
+    ],
+    portals: [
+      { x: 13, y: 15, toMap: "desert-frontier", toX: 13, toY: 1, label: "Desert Frontier" },
+      { x: 25, y: 8, toMap: "thunder-plateau", toX: 1, toY: 8, label: "Thunder Plateau",
+        requiresFlag: "boss-frozen", lockedMessage: "An avalanche has buried the eastern pass. Only the Sleeping Avalanche itself can clear it." },
+    ],
+    npcs: [
+      { npcId: "guide-yura", x: 5, y: 5 },
+      { npcId: "healer-bram", x: 18, y: 11 },
+      { npcId: "skald-edda", x: 21, y: 5 },
+      { npcId: "merchant-frostina", x: 8, y: 11 },
+    ],
+    trainers: [
+      { trainerId: "tr-icewalker-sten", x: 12, y: 3 },
+      { trainerId: "tr-auroramage-liv", x: 19, y: 3 },
+      { trainerId: "tr-peakguard-ulf", x: 6, y: 14 },
+    ],
+    items: [
+      { x: 1, y: 14, itemId: "revive-ember", qty: 1, flag: "item-fr-1" },
+      { x: 23, y: 1, itemId: "large-potion", qty: 2, flag: "item-fr-2" },
+      { x: 12, y: 6, itemId: "thaw-salve", qty: 2, flag: "item-fr-3" },
+    ],
+    bossId: "boss-frozen",
+    bossPos: { x: 22, y: 14 },
+  },
+
+  // ================= THUNDER PLATEAU =================
+  {
+    id: "thunder-plateau",
+    name: "Thunder Plateau",
+    theme: "plateau",
+    musicKey: "plateau",
+    encounterRate: 0.14,
+    encounters: [
+      { speciesId: "sparkit", weight: 26, minLevel: 32, maxLevel: 36 },
+      { speciesId: "voltail", weight: 22, minLevel: 33, maxLevel: 37 },
+      { speciesId: "voltmoth", weight: 20, minLevel: 33, maxLevel: 37 },
+      { speciesId: "galehawk", weight: 18, minLevel: 33, maxLevel: 37 },
+      { speciesId: "emberdrake", weight: 14, minLevel: 35, maxLevel: 38 },
+    ],
+    grid: [
+      "#############=############",
+      "#,,..........=.......,,.##",
+      "#....^^......=...^^......#",
+      "#....^^..***.....^^..***.#",
+      "#........***........***..#",
+      "#..##............##......#",
+      "#..##...,,...##..##..,,..#",
+      "#............##..........#",
+      "=.........,,.............#",
+      "#...***..........***.....#",
+      "#...***....##....***.....#",
+      "#..........##............#",
+      "#..,,...........,,....^^.#",
+      "#......***..***.......^^.#",
+      "#,,....***..***..........#",
+      "##########################",
+    ],
+    portals: [
+      { x: 0, y: 8, toMap: "frozen-ridge", toX: 24, toY: 8, label: "Frozen Ridge" },
+      { x: 13, y: 0, toMap: "sky-temple", toX: 6, toY: 13, label: "Sky Temple",
+        requiresFlag: "boss-thunder", lockedMessage: "The sky-lift sleeps without its sigil. The Stormheart holds what you seek." },
+    ],
+    npcs: [
+      { npcId: "stormwatcher-kaelo", x: 6, y: 7 },
+      { npcId: "healer-vesna", x: 19, y: 7 },
+      { npcId: "hermit-ohm", x: 21, y: 12 },
+    ],
+    trainers: [
+      { trainerId: "tr-stormcaller-rai", x: 10, y: 5 },
+      { trainerId: "tr-skyduelist-wren", x: 16, y: 11 },
+      { trainerId: "tr-thunderfist-goro", x: 4, y: 13 },
+    ],
+    items: [
+      { x: 23, y: 1, itemId: "ultra-orb", qty: 2, flag: "item-tp-1" },
+      { x: 1, y: 14, itemId: "full-potion", qty: 1, flag: "item-tp-2" },
+      { x: 12, y: 8, itemId: "nerve-tonic", qty: 2, flag: "item-tp-3" },
+    ],
+    bossId: "boss-thunder",
+    bossPos: { x: 22, y: 2 },
+  },
+
+  // ================= SKY TEMPLE =================
+  {
+    id: "sky-temple",
+    name: "Sky Temple",
+    theme: "temple",
+    musicKey: "temple",
+    encounterRate: 0.12,
+    encounters: [
+      { speciesId: "lumigleam", weight: 35, minLevel: 38, maxLevel: 43 },
+      { speciesId: "solivine", weight: 20, minLevel: 39, maxLevel: 43 },
+      { speciesId: "chirpuff", weight: 18, minLevel: 38, maxLevel: 42 },
+      { speciesId: "shiverwing", weight: 15, minLevel: 39, maxLevel: 43 },
+      { speciesId: "prismaw", weight: 12, minLevel: 41, maxLevel: 44 },
+    ],
+    grid: [
+      "##########################",
+      "#,,,....##......##....,,,#",
+      "#.......##..,,..##.......#",
+      "#..***..........***......#",
+      "#..***....,,....***......#",
+      "#........................#",
+      "#...##..##....##..##.....#",
+      "#...##..##....##..##.....#",
+      "#............,,..........=",
+      "#..,,....***.....***.....#",
+      "#........***.....***.....#",
+      "#...##...................#",
+      "#...##....,,....##..,,...#",
+      "#...............##.......#",
+      "#,,,..........,,......,,,#",
+      "##########################",
+    ],
+    portals: [
+      { x: 6, y: 13, toMap: "thunder-plateau", toX: 13, toY: 1, label: "Sky-lift down" },
+      { x: 25, y: 8, toMap: "capital-city", toX: 1, toY: 8, label: "Capital City",
+        requiresFlag: "boss-sky", lockedMessage: "The eastern skybridge materializes only for those the First Dawn has measured." },
+    ],
+    npcs: [
+      { npcId: "priestess-alma", x: 12, y: 2 },
+      { npcId: "keeper-orin", x: 14, y: 5 },
+      { npcId: "pilgrim-suna", x: 7, y: 11 },
+    ],
+    trainers: [{ trainerId: "tr-acolyte-sera", x: 19, y: 13 }],
+    items: [
+      { x: 1, y: 1, itemId: "sun-charm", qty: 1, flag: "item-st-1" },
+      { x: 24, y: 14, itemId: "full-potion", qty: 1, flag: "item-st-2" },
+    ],
+    bossId: "boss-sky",
+    bossPos: { x: 12, y: 4 },
+  },
+
+  // ================= CAPITAL CITY =================
+  {
+    id: "capital-city",
+    name: "Capital City",
+    theme: "city",
+    musicKey: "city",
+    encounterRate: 0.12,
+    encounters: [
+      { speciesId: "duskwraith", weight: 30, minLevel: 42, maxLevel: 47 },
+      { speciesId: "shadeling", weight: 28, minLevel: 42, maxLevel: 46 },
+      { speciesId: "ashfiend", weight: 22, minLevel: 43, maxLevel: 47 },
+      { speciesId: "lunivine", weight: 20, minLevel: 43, maxLevel: 47 },
+    ],
+    grid: [
+      "##########################",
+      "#,,..BBB..=..BBB...BBB,,.#",
+      "#....BDB..=..BDB...BDB...#",
+      "#.....=...=...=.....=....#",
+      "#.....=========.....=....#",
+      "#..,,.....=....=====.....#",
+      "#.........=..............#",
+      "#..BBB....=....,,...BBB..#",
+      "=..BDB....=#########BDB..#",
+      "#...=.....=#.......#.=...#",
+      "#...=======#..***..#.=...#",
+      "#..........#..***..#.....#",
+      "#...,,.....#..***..#..,,.#",
+      "#..........#...#####.....#",
+      "#,,........#........,,..,#",
+      "##########################",
+    ],
+    portals: [
+      { x: 0, y: 8, toMap: "sky-temple", toX: 24, toY: 8, label: "Skybridge to the Temple" },
+      { x: 6, y: 2, toMap: "capital-hall", toX: 7, toY: 8, label: "Grand Hall" },
+      { x: 14, y: 2, toMap: "capital-city", toX: 14, toY: 3, requiresFlag: "__locked__", lockedMessage: "The Tamer's Guild is closed for the festival." },
+      { x: 20, y: 2, toMap: "capital-city", toX: 20, toY: 3, requiresFlag: "__locked__", lockedMessage: "A clerk mouths through the glass: 'We open after the crisis.'" },
+      { x: 21, y: 8, toMap: "capital-city", toX: 21, toY: 9, requiresFlag: "__locked__", lockedMessage: "The lift to the spire is out of service." },
+    ],
+    npcs: [
+      { npcId: "healer-cordia", x: 17, y: 5 },
+    ],
+    trainers: [
+      { trainerId: "tr-duskblade-kane", x: 4, y: 6 },
+      { trainerId: "tr-champion-aria", x: 23, y: 11 },
+    ],
+    items: [
+      { x: 24, y: 1, itemId: "moon-charm", qty: 1, flag: "item-capc-1" },
+      { x: 1, y: 14, itemId: "starless-ink", qty: 1, flag: "item-capc-2" },
+      { x: 15, y: 14, itemId: "full-potion", qty: 1, flag: "item-capc-3" },
+    ],
+    bossId: "boss-final",
+    bossPos: { x: 15, y: 11 },
+  },
+
+  // ================= CAPITAL HALL (interior) =================
+  {
+    id: "capital-hall",
+    name: "The Grand Hall",
+    theme: "city",
+    musicKey: "city",
+    encounterRate: 0,
+    encounters: [],
+    grid: [
+      "###############",
+      "#,,....,,...,,#",
+      "#.............#",
+      "#....,,,......#",
+      "#.............#",
+      "#..,,.....,,..#",
+      "#.............#",
+      "#.............#",
+      "#######D#######",
+      "###############",
+    ],
+    portals: [{ x: 7, y: 8, toMap: "capital-city", toX: 6, toY: 3, label: "City Plaza" }],
+    npcs: [
+      { npcId: "chancellor-vade", x: 7, y: 3 },
+      { npcId: "archivist-lumen", x: 11, y: 5 },
+    ],
+    trainers: [],
+    items: [],
+    bossId: "boss-gate",
+    bossPos: { x: 3, y: 6 },
+  },
+];
+
+export const MAP_MAP: Record<string, GameMap> = Object.fromEntries(MAPS.map((m) => [m.id, m]));
+
+export function getMap(id: string): GameMap {
+  const m = MAP_MAP[id];
+  if (!m) throw new Error(`Unknown map: ${id}`);
+  return m;
+}
+
+export const WORLD_MAP_ORDER = [
+  "origin-village",
+  "verdant-forest",
+  "crystal-caverns",
+  "desert-frontier",
+  "frozen-ridge",
+  "thunder-plateau",
+  "sky-temple",
+  "capital-city",
+];
+
+export const SOLID_TILES = new Set(["#", "~", "B", "^"]);
+
+export function isWalkable(map: GameMap, x: number, y: number): boolean {
+  if (y < 0 || y >= map.grid.length) return false;
+  const row = map.grid[y];
+  if (x < 0 || x >= row.length) return false;
+  return !SOLID_TILES.has(row[x]);
+}
